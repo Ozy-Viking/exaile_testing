@@ -1,5 +1,9 @@
+from os import name
+import urllib.parse
 import pytest
-from xl.common import clamp, enum
+from xl.common import clamp, enum, sanitize_url
+
+import urllib
 
 
 @pytest.fixture
@@ -52,3 +56,165 @@ def test_enum_type(enum_input):
 )
 def test_enum_values_by_key(name, value, enum_1):
     assert enum_1[name] == value
+
+
+def test_enum_values_by_name_ON(enum_input):
+    e1 = enum(**enum_input)
+    assert e1.ON == 1
+
+
+def test_enum_values_by_name_OFF(enum_input):
+    e1 = enum(**enum_input)
+    assert e1.OFF == 0
+
+
+@pytest.mark.parametrize(
+    "input, error",
+    [
+        (0, TypeError),
+        (None, TypeError),
+        ([], TypeError),
+        ([1, 2], TypeError),
+        ({}, TypeError),
+        ({1, 2}, TypeError),
+    ],
+)
+def test_enum_raises(input, error):
+    with pytest.raises(error):
+        enum(input)
+
+
+@pytest.mark.parametrize(
+    "input_url, expected_url",
+    [
+        ("https://www.google.com", "https://www.google.com"),
+        ("https://www.google.com/search", "https://www.google.com/search"),
+        (
+            "https://www.google.com/search?q=test",
+            "https://www.google.com/search?q=test",
+        ),
+        ("https://www.google.com", "https://www.google.com"),
+        ("https://www.google.com:3000", "https://www.google.com:3000"),
+        ("https://www.google.com:3000/", "https://www.google.com:3000/"),
+        ("https://www.google.com:3000/search", "https://www.google.com:3000/search"),
+        (
+            "https://www.google.com:3000/search?q=test",
+            "https://www.google.com:3000/search?q=test",
+        ),
+        (
+            "https://www.google.com:3000/search?q=test#test",
+            "https://www.google.com:3000/search?q=test#test",
+        ),
+        ("https://user:password@www.google.com", "https://user:*****@www.google.com"),
+        (
+            "https://user:password@www.google.com:3000",
+            "https://user:*****@www.google.com:3000",
+        ),
+        (
+            "https://user:password@www.google.com:3000/",
+            "https://user:*****@www.google.com:3000/",
+        ),
+        (
+            "https://user:password@www.google.com:3000/search?q=test",
+            "https://user:*****@www.google.com:3000/search?q=test",
+        ),
+        (
+            "https://user:password@www.google.com:3000/search?q=test#test",
+            "https://user:*****@www.google.com:3000/search?q=test#test",
+        ),
+        ("http://www.google.com", "http://www.google.com"),
+        ("http://www.google.com/search", "http://www.google.com/search"),
+        ("http://www.google.com/search?q=test", "http://www.google.com/search?q=test"),
+        ("http://www.google.com", "http://www.google.com"),
+        ("http://www.google.com:3000", "http://www.google.com:3000"),
+        ("http://www.google.com:3000/", "http://www.google.com:3000/"),
+        ("http://www.google.com:3000/search", "http://www.google.com:3000/search"),
+        (
+            "http://www.google.com:3000/search?q=test",
+            "http://www.google.com:3000/search?q=test",
+        ),
+        (
+            "http://www.google.com:3000/search?q=test#test",
+            "http://www.google.com:3000/search?q=test#test",
+        ),
+        ("http://user:password@www.google.com", "http://user:*****@www.google.com"),
+        (
+            "http://user:password@www.google.com:3000",
+            "http://user:*****@www.google.com:3000",
+        ),
+        (
+            "http://user:password@www.google.com:3000/",
+            "http://user:*****@www.google.com:3000/",
+        ),
+        (
+            "http://user:password@www.google.com:3000/search?q=test",
+            "http://user:*****@www.google.com:3000/search?q=test",
+        ),
+        (
+            "http://user:password@www.google.com:3000/search?q=test#test",
+            "http://user:*****@www.google.com:3000/search?q=test#test",
+        ),
+        ("tcp://www.google.com", "tcp://www.google.com"),
+        ("tcp://www.google.com/search", "tcp://www.google.com/search"),
+        ("tcp://www.google.com/search?q=test", "tcp://www.google.com/search?q=test"),
+        ("tcp://www.google.com", "tcp://www.google.com"),
+        ("tcp://www.google.com:3000", "tcp://www.google.com:3000"),
+        ("tcp://www.google.com:3000/", "tcp://www.google.com:3000/"),
+        ("tcp://www.google.com:3000/search", "tcp://www.google.com:3000/search"),
+        (
+            "tcp://www.google.com:3000/search?q=test",
+            "tcp://www.google.com:3000/search?q=test",
+        ),
+        (
+            "tcp://www.google.com:3000/search?q=test#test",
+            "tcp://www.google.com:3000/search?q=test#test",
+        ),
+        ("tcp://user:password@www.google.com", "tcp://user:*****@www.google.com"),
+        (
+            "tcp://user:password@www.google.com:3000",
+            "tcp://user:*****@www.google.com:3000",
+        ),
+        (
+            "tcp://user:password@www.google.com:3000/",
+            "tcp://user:*****@www.google.com:3000/",
+        ),
+        (
+            "tcp://user:password@www.google.com:3000/search?q=test",
+            "tcp://user:*****@www.google.com:3000/search?q=test",
+        ),
+        (
+            "tcp://user:password@www.google.com:3000/search?q=test#test",
+            "tcp://user:*****@www.google.com:3000/search?q=test#test",
+        ),
+    ],
+)
+def test_sanitize_url(input_url, expected_url):
+    assert sanitize_url(input_url) == expected_url
+
+
+@pytest.mark.parametrize(
+    "input_url, expected_url",
+    [
+        ("jnafjilagfbuylaerwfbhjlar", "jnafjilagfbuylaerwfbhjlar"),
+        ("test@user", "test@user"),
+        ("user:test@test", "user:test@test"),
+        ("//user:password@test.com", "//user:*****@test.com"),
+    ],
+)
+def test_sanitize_url_with_junk_input(input_url, expected_url):
+    assert sanitize_url(input_url) == expected_url
+
+
+@pytest.mark.parametrize(
+    "input, error",
+    [
+        (0, TypeError),
+        (None, TypeError),
+        ([], TypeError),
+        ({}, TypeError),
+    ],
+)
+def test_sanitize_url_errors(input, error):
+    with pytest.raises(error):
+        sanitize_url(input)
+
