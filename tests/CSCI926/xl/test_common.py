@@ -1,7 +1,5 @@
-from os import name
-import urllib.parse
 import pytest
-from xl.common import clamp, enum, sanitize_url
+from xl.common import clamp, enum, sanitize_url, get_url_contents
 
 import urllib
 
@@ -13,7 +11,7 @@ def enum_input():
 
 @pytest.fixture
 def enum_1():
-    return {"ON": 1, "OFF": 0}
+    return enum(ON=1, OFF=0)
 
 
 @pytest.mark.parametrize(
@@ -55,7 +53,7 @@ def test_enum_type(enum_input):
     ],
 )
 def test_enum_values_by_key(name, value, enum_1):
-    assert enum_1[name] == value
+    assert getattr(enum_1, name) == value
 
 
 def test_enum_values_by_name_ON(enum_input):
@@ -218,3 +216,19 @@ def test_sanitize_url_errors(input, error):
     with pytest.raises(error):
         sanitize_url(input)
 
+
+def test_get_url_contents(mock_response):
+    assert (
+        get_url_contents("http://example.com", "Test-Agent")
+        == "This is totally fake data."
+    )
+
+
+def test_get_url_headers(mock_request_check_headers, mock_user_agent):
+    assert get_url_contents("http://example.com", "Test-Agent") == mock_user_agent
+
+
+@pytest.mark.xfail  # Work out how to raise
+def test_get_url_contents_raises(mock_user_agent):
+    with pytest.raises(urllib.error.URLError):
+        get_url_contents("http://example.com", mock_user_agent["User-Agent"])
