@@ -1,6 +1,7 @@
 from typing import MutableMapping
 import pytest
 import urllib.request
+from urllib.error import URLError
 
 import xl.common as common
 
@@ -51,6 +52,11 @@ class MockOpener:
         return MockResponse(url, data, timeout)
 
 
+class MockURLError(MockOpener):
+    def open(self, url, data=None, timeout=0):
+        raise URLError("Test Exception Handling")
+
+
 @pytest.fixture(autouse=True)
 def mock_response(monkeypatch):
 
@@ -59,6 +65,19 @@ def mock_response(monkeypatch):
 
     def mock_opener(*args, **kwargs):
         return MockOpener()
+
+    monkeypatch.setattr(urllib.request, "Request", mock_request)
+    monkeypatch.setattr(urllib.request, "_opener", mock_opener())
+
+
+@pytest.fixture()
+def mock_urlerror(monkeypatch):
+
+    def mock_request(*args, **kwargs):
+        return MockRequest(*args, **kwargs)
+
+    def mock_opener(*args, **kwargs):
+        return MockURLError()
 
     monkeypatch.setattr(urllib.request, "Request", mock_request)
     monkeypatch.setattr(urllib.request, "_opener", mock_opener())
@@ -85,3 +104,4 @@ def mock_request_check_headers(monkeypatch):
 
     monkeypatch.setattr(urllib.request, "Request", mock_request)
     monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
+
