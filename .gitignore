@@ -71,3 +71,4 @@ __pycache__/
 .venv
 .coverage
 local_testing.py
+allure-results

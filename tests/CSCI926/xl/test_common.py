@@ -94,104 +94,104 @@ def test_enum_raises(input, error):
 @pytest.mark.parametrize(
     "input_url, expected_url",
     [
-        ("https://www.google.com", "https://www.google.com"),
-        ("https://www.google.com/search", "https://www.google.com/search"),
+        ("https://www.example.com", "https://www.example.com"),
+        ("https://www.example.com/search", "https://www.example.com/search"),
         (
-            "https://www.google.com/search?q=test",
-            "https://www.google.com/search?q=test",
+            "https://www.example.com/search?q=test",
+            "https://www.example.com/search?q=test",
         ),
-        ("https://www.google.com", "https://www.google.com"),
-        ("https://www.google.com:3000", "https://www.google.com:3000"),
-        ("https://www.google.com:3000/", "https://www.google.com:3000/"),
-        ("https://www.google.com:3000/search", "https://www.google.com:3000/search"),
+        ("https://www.example.com", "https://www.example.com"),
+        ("https://www.example.com:3000", "https://www.example.com:3000"),
+        ("https://www.example.com:3000/", "https://www.example.com:3000/"),
+        ("https://www.example.com:3000/search", "https://www.example.com:3000/search"),
         (
-            "https://www.google.com:3000/search?q=test",
-            "https://www.google.com:3000/search?q=test",
-        ),
-        (
-            "https://www.google.com:3000/search?q=test#test",
-            "https://www.google.com:3000/search?q=test#test",
-        ),
-        ("https://user:password@www.google.com", "https://user:*****@www.google.com"),
-        (
-            "https://user:password@www.google.com:3000",
-            "https://user:*****@www.google.com:3000",
+            "https://www.example.com:3000/search?q=test",
+            "https://www.example.com:3000/search?q=test",
         ),
         (
-            "https://user:password@www.google.com:3000/",
-            "https://user:*****@www.google.com:3000/",
+            "https://www.example.com:3000/search?q=test#test",
+            "https://www.example.com:3000/search?q=test#test",
+        ),
+        ("https://user:password@www.example.com", "https://user:*****@www.example.com"),
+        (
+            "https://user:password@www.example.com:3000",
+            "https://user:*****@www.example.com:3000",
         ),
         (
-            "https://user:password@www.google.com:3000/search?q=test",
-            "https://user:*****@www.google.com:3000/search?q=test",
+            "https://user:password@www.example.com:3000/",
+            "https://user:*****@www.example.com:3000/",
         ),
         (
-            "https://user:password@www.google.com:3000/search?q=test#test",
-            "https://user:*****@www.google.com:3000/search?q=test#test",
-        ),
-        ("http://www.google.com", "http://www.google.com"),
-        ("http://www.google.com/search", "http://www.google.com/search"),
-        ("http://www.google.com/search?q=test", "http://www.google.com/search?q=test"),
-        ("http://www.google.com", "http://www.google.com"),
-        ("http://www.google.com:3000", "http://www.google.com:3000"),
-        ("http://www.google.com:3000/", "http://www.google.com:3000/"),
-        ("http://www.google.com:3000/search", "http://www.google.com:3000/search"),
-        (
-            "http://www.google.com:3000/search?q=test",
-            "http://www.google.com:3000/search?q=test",
+            "https://user:password@www.example.com:3000/search?q=test",
+            "https://user:*****@www.example.com:3000/search?q=test",
         ),
         (
-            "http://www.google.com:3000/search?q=test#test",
-            "http://www.google.com:3000/search?q=test#test",
+            "https://user:password@www.example.com:3000/search?q=test#test",
+            "https://user:*****@www.example.com:3000/search?q=test#test",
         ),
-        ("http://user:password@www.google.com", "http://user:*****@www.google.com"),
+        ("http://www.example.com", "http://www.example.com"),
+        ("http://www.example.com/search", "http://www.example.com/search"),
+        ("http://www.example.com/search?q=test", "http://www.example.com/search?q=test"),
+        ("http://www.example.com", "http://www.example.com"),
+        ("http://www.example.com:3000", "http://www.example.com:3000"),
+        ("http://www.example.com:3000/", "http://www.example.com:3000/"),
+        ("http://www.example.com:3000/search", "http://www.example.com:3000/search"),
         (
-            "http://user:password@www.google.com:3000",
-            "http://user:*****@www.google.com:3000",
-        ),
-        (
-            "http://user:password@www.google.com:3000/",
-            "http://user:*****@www.google.com:3000/",
-        ),
-        (
-            "http://user:password@www.google.com:3000/search?q=test",
-            "http://user:*****@www.google.com:3000/search?q=test",
+            "http://www.example.com:3000/search?q=test",
+            "http://www.example.com:3000/search?q=test",
         ),
         (
-            "http://user:password@www.google.com:3000/search?q=test#test",
-            "http://user:*****@www.google.com:3000/search?q=test#test",
+            "http://www.example.com:3000/search?q=test#test",
+            "http://www.example.com:3000/search?q=test#test",
         ),
-        ("tcp://www.google.com", "tcp://www.google.com"),
-        ("tcp://www.google.com/search", "tcp://www.google.com/search"),
-        ("tcp://www.google.com/search?q=test", "tcp://www.google.com/search?q=test"),
-        ("tcp://www.google.com", "tcp://www.google.com"),
-        ("tcp://www.google.com:3000", "tcp://www.google.com:3000"),
-        ("tcp://www.google.com:3000/", "tcp://www.google.com:3000/"),
-        ("tcp://www.google.com:3000/search", "tcp://www.google.com:3000/search"),
+        ("http://user:password@www.example.com", "http://user:*****@www.example.com"),
         (
-            "tcp://www.google.com:3000/search?q=test",
-            "tcp://www.google.com:3000/search?q=test",
+            "http://user:password@www.example.com:3000",
+            "http://user:*****@www.example.com:3000",
         ),
         (
-            "tcp://www.google.com:3000/search?q=test#test",
-            "tcp://www.google.com:3000/search?q=test#test",
-        ),
-        ("tcp://user:password@www.google.com", "tcp://user:*****@www.google.com"),
-        (
-            "tcp://user:password@www.google.com:3000",
-            "tcp://user:*****@www.google.com:3000",
+            "http://user:password@www.example.com:3000/",
+            "http://user:*****@www.example.com:3000/",
         ),
         (
-            "tcp://user:password@www.google.com:3000/",
-            "tcp://user:*****@www.google.com:3000/",
+            "http://user:password@www.example.com:3000/search?q=test",
+            "http://user:*****@www.example.com:3000/search?q=test",
         ),
         (
-            "tcp://user:password@www.google.com:3000/search?q=test",
-            "tcp://user:*****@www.google.com:3000/search?q=test",
+            "http://user:password@www.example.com:3000/search?q=test#test",
+            "http://user:*****@www.example.com:3000/search?q=test#test",
+        ),
+        ("tcp://www.example.com", "tcp://www.example.com"),
+        ("tcp://www.example.com/search", "tcp://www.example.com/search"),
+        ("tcp://www.example.com/search?q=test", "tcp://www.example.com/search?q=test"),
+        ("tcp://www.example.com", "tcp://www.example.com"),
+        ("tcp://www.example.com:3000", "tcp://www.example.com:3000"),
+        ("tcp://www.example.com:3000/", "tcp://www.example.com:3000/"),
+        ("tcp://www.example.com:3000/search", "tcp://www.example.com:3000/search"),
+        (
+            "tcp://www.example.com:3000/search?q=test",
+            "tcp://www.example.com:3000/search?q=test",
         ),
         (
-            "tcp://user:password@www.google.com:3000/search?q=test#test",
-            "tcp://user:*****@www.google.com:3000/search?q=test#test",
+            "tcp://www.example.com:3000/search?q=test#test",
+            "tcp://www.example.com:3000/search?q=test#test",
+        ),
+        ("tcp://user:password@www.example.com", "tcp://user:*****@www.example.com"),
+        (
+            "tcp://user:password@www.example.com:3000",
+            "tcp://user:*****@www.example.com:3000",
+        ),
+        (
+            "tcp://user:password@www.example.com:3000/",
+            "tcp://user:*****@www.example.com:3000/",
+        ),
+        (
+            "tcp://user:password@www.example.com:3000/search?q=test",
+            "tcp://user:*****@www.example.com:3000/search?q=test",
+        ),
+        (
+            "tcp://user:password@www.example.com:3000/search?q=test#test",
+            "tcp://user:*****@www.example.com:3000/search?q=test#test",
         ),
     ],
 )
@@ -456,7 +456,7 @@ def mock_songs_with_metadata():
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -466,7 +466,7 @@ def test_MetadataList(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(10, 10_011, 500)),
+    list(range(10, 1_011, 50)),
 )
 def test_MetadataList_Metadata_shorter_raises_ValueError(
     item_count, mock_songs_with_metadata
@@ -478,7 +478,7 @@ def test_MetadataList_Metadata_shorter_raises_ValueError(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(10, 10_011, 500)),
+    list(range(10, 1_011, 50)),
 )
 def test_MetadataList_metadata_longer_raises_ValueError(
     item_count, mock_songs_with_metadata
@@ -490,7 +490,7 @@ def test_MetadataList_metadata_longer_raises_ValueError(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_len(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -500,7 +500,7 @@ def test_MetadataList_len(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_repr(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -510,7 +510,7 @@ def test_MetadataList_repr(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_iter(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -521,7 +521,7 @@ def test_MetadataList_iter(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_add(
     item_count, mock_songs_with_metadata, mock_song, mock_song_in_list
@@ -535,7 +535,7 @@ def test_MetadataList_add(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_iadd(
     item_count, mock_songs_with_metadata, mock_song, mock_song_in_list
@@ -549,7 +549,7 @@ def test_MetadataList_iadd(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(0, 10_001, 500)),
+    list(range(0, 1_001, 50)),
 )
 def test_MetadataList_eq(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -560,7 +560,7 @@ def test_MetadataList_eq(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(1, 10_002, 500)),
+    list(range(1, 1_002, 50)),
 )
 def test_MetadataList_getitem_no_slice(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -570,7 +570,7 @@ def test_MetadataList_getitem_no_slice(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(1, 10_002, 500)),
+    list(range(1, 1_002, 50)),
 )
 def test_MetadataList_getitem_slice(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
@@ -583,7 +583,7 @@ def test_MetadataList_getitem_slice(item_count, mock_songs_with_metadata):
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(1, 10_002, 500)),
+    list(range(1, 1_002, 50)),
 )
 def test_MetadataList_setitem_without_metadata_not_MetadataList(
     item_count, mock_songs_with_metadata, mock_song
@@ -601,7 +601,7 @@ def test_MetadataList_setitem_without_metadata_not_MetadataList(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(1, 10_002, 500)),
+    list(range(1, 1_002, 50)),
 )
 def test_MetadataList_setitem_MetadataList(
     item_count, mock_songs_with_metadata, mock_song_in_list
@@ -619,7 +619,7 @@ def test_MetadataList_setitem_MetadataList(
 
 @pytest.mark.parametrize(
     "item_count",
-    list(range(2, 10_003, 500)),
+    list(range(2, 1003, 50)),
 )
 def test_MetadataList_delitem(item_count, mock_songs_with_metadata):
     song_list, meta_list = mock_songs_with_metadata(item_count)
