@@ -105,3 +105,49 @@ def mock_request_check_headers(monkeypatch):
     monkeypatch.setattr(urllib.request, "Request", mock_request)
     monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen)
 
+
+def mock_metadata(title, artist="test artist", songlength=300, **kwargs):
+    return {"title": title, "artist": artist, "songlength": songlength} | kwargs
+
+
+class MockSong:
+    def __init__(self, title, artist="test artist", songlength=300, **kwargs) -> None:
+        self.__dict__ = mock_metadata(title, artist, songlength, **kwargs)
+
+    @property
+    def metadata(self):
+        return self.__dict__
+        
+    def __eq__(self, other):
+        if isinstance(other, MockSong):
+            return self.metadata == other.metadata
+        else:
+            return NotImplemented
+    
+    def __str__(self) -> str:
+        return f'{self.title} by {self.artist}'
+    
+    def __repr__(self) -> str:
+        return f'MockSong("{self.title}")'
+
+
+@pytest.fixture(autouse=True)
+def mock_song():
+    return MockSong("Mock Song", mock=True)
+
+
+@pytest.fixture(autouse=True)
+def mock_song_in_list(mock_song):
+    return common.MetadataList([mock_song], [mock_song.metadata])
+
+
+@pytest.fixture
+def mock_songs_with_metadata():
+    def gen_song_list(num_songs=10):
+        song_list = [MockSong(f"Test {x}") for x in range(num_songs)]
+        meta_list = [x.metadata for x in song_list]
+        return (song_list, meta_list)
+
+    return gen_song_list
+
+

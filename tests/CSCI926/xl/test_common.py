@@ -1,4 +1,6 @@
+from typing import Any
 import pytest
+from tests.CSCI926.xl.conftest import MockSong
 from xl.common import (
     MetadataList,
     TimeSpan,
@@ -131,7 +133,10 @@ def test_enum_raises(input, error):
         ),
         ("http://www.example.com", "http://www.example.com"),
         ("http://www.example.com/search", "http://www.example.com/search"),
-        ("http://www.example.com/search?q=test", "http://www.example.com/search?q=test"),
+        (
+            "http://www.example.com/search?q=test",
+            "http://www.example.com/search?q=test",
+        ),
         ("http://www.example.com", "http://www.example.com"),
         ("http://www.example.com:3000", "http://www.example.com:3000"),
         ("http://www.example.com:3000/", "http://www.example.com:3000/"),
@@ -425,35 +430,6 @@ def test_timespan_repr(days, hours, minutes, seconds):
     assert repr(TimeSpan(test_span)) == f"TimeSpan({float(test_span)})"
 
 
-def mock_metadata(title, artist="test artist", songlength=300, **kwargs):
-    return {"title": title, "artist": artist, "songlength": songlength} | kwargs
-
-
-class MockSong:
-    def __init__(self, title, artist="test artist", songlength=300, **kwargs) -> None:
-        self.metadata = mock_metadata(title, artist, songlength, **kwargs)
-
-
-@pytest.fixture(autouse=True)
-def mock_song():
-    return MockSong("Mock Song", mock=True)
-
-
-@pytest.fixture(autouse=True)
-def mock_song_in_list(mock_song):
-    return MetadataList([mock_song], [mock_song.metadata])
-
-
-@pytest.fixture
-def mock_songs_with_metadata():
-    def gen_song_list(num_songs=10):
-        song_list = [MockSong(f"Test {x}") for x in range(num_songs)]
-        meta_list = [x.metadata for x in song_list]
-        return (song_list, meta_list)
-
-    return gen_song_list
-
-
 @pytest.mark.parametrize(
     "item_count",
     list(range(0, 1_001, 50)),
@@ -633,4 +609,126 @@ def test_MetadataList_delitem(item_count, mock_songs_with_metadata):
     assert len(mdl) == item_count - 1
     assert mdl[0] != del_song
     assert mdl.metadata[0] != del_metadata
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(2, 1003, 50)),
+)
+def test_MetadataList_append(item_count, mock_songs_with_metadata, mock_song):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2.append(mock_song)
+    meta_list_v2.append(mock_song.metadata)
+    mdl.append(mock_song, mock_song.metadata)
+    mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
+    assert mdl == mdl_v2
+    assert mdl.metadata == meta_list_v2
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(2, 1003, 50)),
+)
+def test_MetadataList_extend(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+
+    song_list_v2, _ = mock_songs_with_metadata(item_count)
+    meta_list_v2 = [None for _ in range(len(song_list_v2))]
+    mdl.extend(song_list_v2)
+
+    song_list_v3 = song_list + song_list_v2
+    meta_list_v3 = meta_list + meta_list_v2
+    mdl_v2 = MetadataList(song_list_v3, meta_list_v3)
+
+    assert mdl == mdl_v2
+    assert mdl.metadata == mdl_v2.metadata
+
+
+# TODO: Found Bug
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_insert_middle(item_count, mock_songs_with_metadata, mock_song):
+    insert_loc = int(item_count // 2)
+    insert_song = mock_song
+    insert_meta = mock_song.metadata
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    mdl.insert(insert_loc, insert_song, insert_meta)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2.insert(insert_loc, insert_song)
+    meta_list_v2.insert(insert_loc, insert_meta)
+    mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
+    assert mdl == mdl_v2
+    assert mdl.metadata[insert_loc] == insert_meta
+    assert mdl.metadata is not mdl_v2.metadata
+    assert len(mdl.metadata) == len(mdl_v2.metadata)
+    assert mdl.metadata == mdl_v2.metadata
+
+
+def test_MetadataList_insert_zero_length(item_count, mock_songs_with_metadata, mock_song):
+    insert_loc = 0
+    insert_song = mock_song
+    insert_meta = mock_song.metadata
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    mdl.insert(insert_loc, insert_song, insert_meta)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2.insert(insert_loc, insert_song)
+    meta_list_v2.insert(insert_loc, insert_meta)
+    mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
+    assert mdl == mdl_v2
+    assert mdl.metadata[insert_loc] == insert_meta
+    assert mdl.metadata is not mdl_v2.metadata
+    assert len(mdl.metadata) == len(mdl_v2.metadata)
+    assert mdl.metadata == mdl_v2.metadata
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_insert_beginning(item_count, mock_songs_with_metadata, mock_song):
+    insert_loc = 0
+    insert_song = mock_song
+    insert_meta = mock_song.metadata
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    mdl.insert(insert_loc, insert_song, insert_meta)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2.insert(insert_loc, insert_song)
+    meta_list_v2.insert(insert_loc, insert_meta)
+    mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
+    assert mdl == mdl_v2
+    assert mdl.metadata[insert_loc] == insert_meta
+    assert mdl.metadata is not mdl_v2.metadata
+    assert len(mdl.metadata) == len(mdl_v2.metadata)
+    assert mdl.metadata == mdl_v2.metadata
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_insert_end(item_count, mock_songs_with_metadata, mock_song):
+    insert_loc = item_count
+    insert_song = mock_song
+    insert_meta = mock_song.metadata
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    mdl.insert(insert_loc, insert_song, insert_meta)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2.insert(insert_loc, insert_song)
+    meta_list_v2.insert(insert_loc, insert_meta)
+    mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
+    assert mdl == mdl_v2
+    assert mdl.metadata[insert_loc] == insert_meta
+    assert mdl.metadata is not mdl_v2.metadata
+    assert len(mdl.metadata) == len(mdl_v2.metadata)
+    assert mdl.metadata == mdl_v2.metadata
 
