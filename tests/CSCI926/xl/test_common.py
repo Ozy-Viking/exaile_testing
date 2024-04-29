@@ -671,16 +671,17 @@ def test_MetadataList_insert_middle(item_count, mock_songs_with_metadata, mock_s
     assert mdl.metadata is not mdl_v2.metadata
     assert len(mdl.metadata) == len(mdl_v2.metadata)
     assert mdl.metadata == mdl_v2.metadata
+    assert mdl[insert_loc] == insert_song
 
 
-def test_MetadataList_insert_zero_length(item_count, mock_songs_with_metadata, mock_song):
+def test_MetadataList_insert_zero_length(mock_songs_with_metadata, mock_song):
     insert_loc = 0
     insert_song = mock_song
     insert_meta = mock_song.metadata
-    song_list, meta_list = mock_songs_with_metadata(item_count)
+    song_list, meta_list = mock_songs_with_metadata(0)
     mdl = MetadataList(song_list, meta_list)
     mdl.insert(insert_loc, insert_song, insert_meta)
-    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(0)
     song_list_v2.insert(insert_loc, insert_song)
     meta_list_v2.insert(insert_loc, insert_meta)
     mdl_v2 = MetadataList(song_list_v2, meta_list_v2)
@@ -689,6 +690,8 @@ def test_MetadataList_insert_zero_length(item_count, mock_songs_with_metadata, m
     assert mdl.metadata is not mdl_v2.metadata
     assert len(mdl.metadata) == len(mdl_v2.metadata)
     assert mdl.metadata == mdl_v2.metadata
+    assert mdl[insert_loc] == insert_song
+
 
 @pytest.mark.parametrize(
     "item_count",
@@ -710,6 +713,8 @@ def test_MetadataList_insert_beginning(item_count, mock_songs_with_metadata, moc
     assert mdl.metadata is not mdl_v2.metadata
     assert len(mdl.metadata) == len(mdl_v2.metadata)
     assert mdl.metadata == mdl_v2.metadata
+    assert mdl[insert_loc] == insert_song
+
 
 @pytest.mark.parametrize(
     "item_count",
@@ -731,4 +736,97 @@ def test_MetadataList_insert_end(item_count, mock_songs_with_metadata, mock_song
     assert mdl.metadata is not mdl_v2.metadata
     assert len(mdl.metadata) == len(mdl_v2.metadata)
     assert mdl.metadata == mdl_v2.metadata
+    assert mdl[insert_loc] == insert_song
 
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_pop_removes_one(item_count, mock_songs_with_metadata):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    expected_length = item_count - 1
+    mdl.pop()
+    assert len(mdl) == expected_length
+    assert len(mdl.metadata) == expected_length
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_pop_returns_last_item(item_count, mock_songs_with_metadata):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    last_song = song_list[-1]
+    pop_item = mdl.pop()
+    assert pop_item == last_song
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_pop_returns_inputed_index(item_count, mock_songs_with_metadata):
+    pop_loc = int(item_count // 2)
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    expected_length = item_count - 1
+    pop_song = song_list[pop_loc]
+    pop_item = mdl.pop(pop_loc)
+    assert pop_item == pop_song
+    assert len(mdl) == expected_length
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_remove(item_count, mock_songs_with_metadata):
+    remove_loc = int(item_count // 2)
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    expected_length = item_count - 1
+    remove_song = song_list[remove_loc]
+    assert remove_song in mdl
+    mdl.remove(remove_song)
+    assert remove_song not in mdl
+    assert len(mdl) == expected_length
+    assert len(mdl.metadata) == expected_length
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_remove_item_not_in_list(
+    item_count, mock_songs_with_metadata, mock_song
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    expected_length = item_count
+    assert mock_song not in mdl
+    with pytest.raises(ValueError):
+        mdl.remove(mock_song)
+    assert len(mdl) == expected_length
+    assert len(mdl.metadata) == expected_length
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_reverse(item_count, mock_songs_with_metadata):
+    reverse_slice = slice(None, None, -1)
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    mdl.reverse()
+    song_list_v2, meta_list_v2 = mock_songs_with_metadata(item_count)
+    song_list_v3 = song_list_v2[reverse_slice]
+    meta_list_v3 = meta_list_v2[reverse_slice]
+    mdl_v2 = MetadataList(song_list_v3, meta_list_v3)
+
+    assert mdl == mdl_v2
+    assert mdl.metadata == mdl_v2.metadata
+    assert mdl[0] == mdl_v2[0]
