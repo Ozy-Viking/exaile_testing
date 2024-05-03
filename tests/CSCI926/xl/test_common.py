@@ -830,3 +830,451 @@ def test_MetadataList_reverse(item_count, mock_songs_with_metadata):
     assert mdl == mdl_v2
     assert mdl.metadata == mdl_v2.metadata
     assert mdl[0] == mdl_v2[0]
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_index_value_in_list(item_count, mock_songs_with_metadata):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index_expected = int(item_count // 2)
+    index_song = song_list[index_expected]
+
+    assert mdl.index(index_song) == index_expected
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_index_value_in_list_with_start_below_expected(
+    item_count, mock_songs_with_metadata
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index_expected = int(item_count // 2)
+    index_start = 2
+    index_song = song_list[index_expected]
+
+    assert index_expected > index_start
+    assert mdl.index(index_song, index_start) == index_expected
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_index_value_in_list_with_start_above_expected(
+    item_count, mock_songs_with_metadata
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index_expected = int(item_count // 2)
+    index_start = item_count - 2
+    index_song = song_list[index_expected]
+
+    assert index_expected < index_start
+
+    with pytest.raises(ValueError) as ve:
+        mdl.index(index_song, index_start)
+
+    assert f"{repr(index_song)} is not in list" == str(ve.value)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_index_value_in_list_with_end_above_expected(
+    item_count, mock_songs_with_metadata
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index_expected = int(item_count // 2)
+    index_end = item_count - 2
+    index_song = song_list[index_expected]
+
+    assert index_expected < index_end
+    assert mdl.index(index_song, 0, index_end) == index_expected
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_index_value_in_list_with_end_below_expected(
+    item_count, mock_songs_with_metadata
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index_expected = int(item_count // 2)
+    index_end = 2
+    index_song = song_list[index_expected]
+
+    assert index_expected > index_end
+    with pytest.raises(ValueError) as ve:
+        mdl.index(index_song, 0, index_end)
+
+    assert f"{repr(index_song)} is not in list" == str(ve.value)
+
+
+def test_MetadataList_index_empty_list(mock_song):
+    mdl = MetadataList()
+    assert len(mdl) == 0
+    with pytest.raises(ValueError) as ve:
+        mdl.index(mock_song)
+
+    assert f"{repr(mock_song)} is not in list" == str(ve.value)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_count_with_single_object(item_count, mock_songs_with_metadata):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    counted_song = song_list[int(item_count // 2)]
+
+    assert mdl.count(counted_song) == 1
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_count_with_multiple_objects(
+    item_count,
+    mock_songs_with_metadata,
+    mock_song,
+):
+    expected_count = min(2, int(item_count // 10))
+    song_list, _ = mock_songs_with_metadata(item_count)
+    for i in range(expected_count):
+        song_list[i * expected_count] = mock_song
+    mdl = MetadataList(song_list)
+
+    assert mdl.count(mock_song) == expected_count
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(10, 1_012, 50)),
+)
+def test_MetadataList_count_with_zero_objects(
+    item_count,
+    mock_songs_with_metadata,
+    mock_song,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+
+    assert mdl.count(mock_song) == 0
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_default_None(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+
+    song_meta = meta_list[index]
+    song_artist_key = "artist"
+    song_artist = "test artist"
+
+    assert mdl.get_meta_key(index, song_artist_key, None) == song_artist
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_default_Something(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+
+    song_meta = meta_list[index]
+    song_artist_key = "artist"
+    song_artist = "test artist"
+
+    assert mdl.get_meta_key(index, song_artist_key, "Something") == song_artist
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_non_exist_key_default_None(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+
+    song_meta = meta_list[index]
+    song_artist_key = "Non Exist"
+    song_artist = "test artist"
+
+    assert mdl.get_meta_key(index, song_artist_key, None) == None
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_non_exist_key_default_Something(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+
+    song_meta = meta_list[index]
+    song_artist_key = "Non Exist"
+    song_artist = "test artist"
+
+    assert mdl.get_meta_key(index, song_artist_key, "Something") == "Something"
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_outside_range_non_exist_key_default_Something(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = item_count + 1
+
+    song_artist_key = "Non Exist"
+
+    with pytest.raises(IndexError) as ie:
+        mdl.get_meta_key(index, song_artist_key, "Something")
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_outside_range_non_exist_key(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = item_count + 1
+
+    song_artist_key = "Non Exist"
+
+    with pytest.raises(IndexError) as ie:
+        mdl.get_meta_key(index, song_artist_key)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_None_meta_list_no_default(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index = int(item_count // 2)
+    song_artist_key = "Non Exist"
+
+    assert mdl.get_meta_key(index, song_artist_key) == None
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_get_meta_key_None_meta_list_default_something(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index = int(item_count // 2)
+    song_artist_key = "Non Exist"
+
+    assert mdl.get_meta_key(index, song_artist_key, "Something") == "Something"
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_set_meta_key_key_exisits(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+    song_artist_key = "artist"
+    new_value = "New Value"
+
+    mdl.set_meta_key(index, song_artist_key, new_value)
+    assert mdl.get_meta_key(index, song_artist_key) == "New Value"
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_set_meta_key_key_doesnt_exisits(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+    song_artist_key = "Non-Existant"
+    new_value = "New Value"
+
+    mdl.set_meta_key(index, song_artist_key, new_value)
+    assert mdl.get_meta_key(index, song_artist_key) == new_value
+    assert mdl.metadata[index][song_artist_key] == new_value
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_set_meta_key_None_meta_list(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index = int(item_count // 2)
+    song_artist_key = "artist"
+    new_value = "New Value"
+
+    assert mdl.metadata[index] == None
+
+    mdl.set_meta_key(index, song_artist_key, new_value)
+    assert mdl.get_meta_key(index, song_artist_key) == new_value
+    assert mdl.metadata[index][song_artist_key] == new_value
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_set_meta_key_index_greater_than_length(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index = item_count * 2
+    song_artist_key = "artist"
+    new_value = "New Value"
+
+    assert len(mdl.metadata) < index
+    with pytest.raises(IndexError):
+        mdl.set_meta_key(index, song_artist_key, new_value)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_del_meta_key_raises_KeyError(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, _ = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list)
+    index = int(item_count // 2)
+    song_artist_key = "artist"
+
+    assert mdl.metadata[index] == None
+
+    with pytest.raises(KeyError):
+        mdl.del_meta_key(index, song_artist_key)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_del_meta_key_delete_valid_key(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+    song_artist_key = "artist"
+
+    assert mdl.metadata[index][song_artist_key] == "test artist"
+
+    mdl.del_meta_key(index, song_artist_key)
+
+    with pytest.raises(KeyError):
+        mdl.metadata[index][song_artist_key]
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_del_meta_key_delete_invalid_key(
+    item_count,
+    mock_songs_with_metadata,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    mdl = MetadataList(song_list, meta_list)
+    index = int(item_count // 2)
+    song_artist_key = "INVALID KEY"
+
+    with pytest.raises(KeyError):
+        mdl.metadata[index][song_artist_key]
+
+    with pytest.raises(KeyError):
+        mdl.del_meta_key(index, song_artist_key)
+
+
+@pytest.mark.parametrize(
+    "item_count",
+    list(range(1, 1_002, 50)),
+)
+def test_MetadataList_del_meta_key_delete_last_key(
+    item_count,
+    mock_songs_with_metadata,
+    mock_empty_song,
+):
+    song_list, meta_list = mock_songs_with_metadata(item_count)
+    index = -1
+    song_artist_key = "artist"
+    song_artist_value = "test value"
+    mock_empty_song[song_artist_key] = song_artist_value
+    song_list.append(mock_empty_song)
+    meta_list.append(mock_empty_song.metadata)
+    mdl = MetadataList(song_list, meta_list)
+
+    assert mdl.metadata[index] == {song_artist_key: song_artist_value}
+
+    mdl.del_meta_key(index, song_artist_key)
+
+    assert mdl.metadata[index] == None

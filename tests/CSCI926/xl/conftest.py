@@ -111,24 +111,44 @@ def mock_metadata(title, artist="test artist", songlength=300, **kwargs):
 
 
 class MockSong:
+    PROTECTED_KEYS = ["metadata"]
+
     def __init__(self, title, artist="test artist", songlength=300, **kwargs) -> None:
-        self.__dict__ = mock_metadata(title, artist, songlength, **kwargs)
+        for k, v in mock_metadata(title, artist, songlength, **kwargs).items():
+            self.__dict__[k] = v
 
     @property
     def metadata(self):
         return self.__dict__
-        
+
     def __eq__(self, other):
         if isinstance(other, MockSong):
             return self.metadata == other.metadata
         else:
             return NotImplemented
-    
+
     def __str__(self) -> str:
-        return f'{self.title} by {self.artist}'
-    
+        return f"{self.title} by {self.artist}"
+
     def __repr__(self) -> str:
         return f'MockSong("{self.title}")'
+
+    def __setitem__(self, name, value) -> None:
+        if name == "metadata":
+            raise KeyError("Metadata in use.")
+        self.__dict__[name] = value
+
+    def __getitem__(self, name, value) -> None:
+        if name == "metadata":
+            raise KeyError("Metadata in use.")
+        self.__dict__[name] = value
+
+
+@pytest.fixture()
+def mock_empty_song():
+    empty_song = MockSong("Mock Song")
+    empty_song.__dict__ = {}
+    return empty_song
 
 
 @pytest.fixture(autouse=True)
@@ -149,5 +169,3 @@ def mock_songs_with_metadata():
         return (song_list, meta_list)
 
     return gen_song_list
-
-
