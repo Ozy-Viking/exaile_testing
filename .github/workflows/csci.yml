@@ -33,7 +33,7 @@ jobs:
           export PYTEST=pytest
       - name: Make Files
         run: |
-          py.test-3 -V
+          ${PYTEST} -V
           make test
       - name: Run Tests
         run: export EXAILE_DIR=$(pwd) && export PATH="${PATH}:$(pwd)"; python -m pytest tests/CSCI926
