@@ -21,21 +21,20 @@ jobs:
       - name: Add User
         run: sudo useradd -MN exaile
       - name: Install OS dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: |
-            python3-mutagen
-            python3-gi
-            python3-gi-cairo
-            python3-dbus
-            gir1.2-gtk-3.0
-            gir1.2-gstreamer-1.0
-            gir1.2-gst-plugins-base-1.0
-            gstreamer1.0-plugins-base
-            gstreamer1.0-plugins-good
-            gstreamer1.0-plugins-ugly
-            gstreamer1.0-plugins-bad
-          version: 1.4
+        run: |
+          sudo apt update && \
+          sudo apt install \
+          gir1.2-gtk-3.0 \
+          gir1.2-gstreamer-1.0 \
+          gir1.2-gst-plugins-base-1.0 \
+          gstreamer1.0-plugins-base \
+          gstreamer1.0-plugins-good \
+          gstreamer1.0-plugins-ugly \
+          gstreamer1.0-plugins-bad \
+          python3-mutagen \
+          python3-gi \
+          python3-gi-cairo \
+          python3-dbus
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
