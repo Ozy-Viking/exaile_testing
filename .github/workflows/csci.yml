@@ -1,0 +1,46 @@
+name: Testing for Course
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Add User
+        run: useradd -MN exaile
+      - name: Install OS dependencies
+        run: |
+          RUN set -x \
+          && apt-get update \
+          && apt-get install --assume-yes --no-install-recommends \
+            gettext \
+            gir1.2-gst-plugins-base-1.0 \
+            gir1.2-gstreamer-1.0 \
+            gstreamer1.0-plugins-base \
+            libgstreamer1.0-0 \
+            make \
+            python3 \
+            python3-bsddb3 \
+            python3-gi \
+            python3-mutagen \
+            python3-pytest \
+            python3-sphinx \
+            python3-sphinx-rtd-theme \
+          && find /var/lib/apt/lists -mindepth 1 -delete
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Tests
+        run: pytest -v
