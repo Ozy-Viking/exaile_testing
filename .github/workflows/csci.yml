@@ -22,8 +22,19 @@ jobs:
       - name: Install OS dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: gettext gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 gstreamer1.0-plugins-base libgstreamer1.0-0 python3-bsddb3
-          version: 1.0
+          packages: |
+            python3-mutagen
+            python3-gi
+            python3-gi-cairo
+            python3-dbus
+            gir1.2-gtk-3.0
+            gir1.2-gstreamer-1.0
+            gir1.2-gst-plugins-base-1.0
+            gstreamer1.0-plugins-base
+            gstreamer1.0-plugins-good
+            gstreamer1.0-plugins-ugly
+            gstreamer1.0-plugins-bad
+          version: 1.2
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
