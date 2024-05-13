@@ -41,5 +41,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements_test.txt
+          
       - name: Run Tests
-        run: pytest -v
+        run: EXAILE_DIR=$(pwd) pytest
