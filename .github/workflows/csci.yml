@@ -52,4 +52,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install PyGObject bsddb3
       - name: Run Tests
-        run: export EXAILE_DIR=$(pwd) && export PATH="${PATH}:$(pwd)"; python3 -m pytest tests/CSCI926
+        run: export EXAILE_DIR=$(pwd) && export PATH="${PATH}:$(pwd)"; pytest tests/CSCI926
