@@ -76,7 +76,7 @@ PICKLE_PROTOCOL = 2
 # Default tags for track sorting. Unless you have good reason to do
 # otherwise, use this.
 # TODO: make this a setting?
-BASE_SORT_TAGS = ('albumartist', 'date', 'album', 'discnumber', 'tracknumber', 'title')
+BASE_SORT_TAGS = ("albumartist", "date", "album", "discnumber", "tracknumber", "title")
 
 
 def clamp(value, minimum, maximum):
@@ -96,7 +96,7 @@ def enum(**enums):
 
     :see: https://stackoverflow.com/a/1695250
     """
-    return type('Enum', (), enums)
+    return type("Enum", (), enums)
 
 
 def sanitize_url(url: str) -> str:
@@ -108,14 +108,14 @@ def sanitize_url(url: str) -> str:
     """
     try:
         components = list(urllib.parse.urlparse(url))
-        auth, host = components[1].split('@')
-        username, password = auth.split(':')
+        auth, host = components[1].split("@")
+        username, password = auth.split(":")
     except (AttributeError, ValueError):
         pass
     else:
         # Replace password with fixed amount of "*"
-        auth = ':'.join((username, 5 * '*'))
-        components[1] = '@'.join((auth, host))
+        auth = ":".join((username, 5 * "*"))
+        components[1] = "@".join((auth, host))
         url = urllib.parse.urlunparse(components)
 
     return url
@@ -132,7 +132,7 @@ def get_url_contents(url, user_agent: str) -> bytes:
     :raises: urllib.error.URLError
     """
 
-    headers = {'User-Agent': user_agent}
+    headers = {"User-Agent": user_agent}
     req = urllib.request.Request(url, None, headers)
     fp = urllib.request.urlopen(req)
     data = fp.read()
@@ -176,7 +176,7 @@ def synchronized(func):
         except AttributeError:
             from threading import RLock
 
-            rlock = self.__dict__.setdefault('_sync_lock', RLock())
+            rlock = self.__dict__.setdefault("_sync_lock", RLock())
         rlock.acquire()
         try:
             return func(self, *__args, **__kw)
@@ -228,7 +228,7 @@ def _glib_wait_inner(timeout, glib_timeout_func):
     def waiter(function):
         # ensure this is only used on instance methods
         callargs = inspect.getfullargspec(function)
-        if len(callargs.args) == 0 or callargs.args[0] != 'self':
+        if len(callargs.args) == 0 or callargs.args[0] != "self":
             raise RuntimeError("Must only use glib_wait* on instance methods!")
 
         def thunk(*args, **kwargs):
@@ -295,7 +295,7 @@ def profileit(func):
         res = prof.runcall(func, *args, **kwargs)
         stats = pstats.Stats(prof)
         stats.strip_dirs()
-        stats.sort_stats('time', 'calls')
+        stats.sort_stats("time", "calls")
         print(">>>---- Begin profiling print")
         stats.print_stats()
         print(">>>---- End profiling print")
@@ -338,12 +338,12 @@ def open_file(path):
     Opens a file or folder using the system configured program
     """
     platform = sys.platform
-    if platform == 'win32':
+    if platform == "win32":
         # pylint will error here on non-windows platforms unless we do this
         # pylint: disable-msg=E1101
         os.startfile(path)
         # pylint: enable-msg=E1101
-    elif platform == 'darwin':
+    elif platform == "darwin":
         subprocess.Popen(["open", path])
     else:
         subprocess.Popen(["xdg-open", path])
@@ -355,7 +355,7 @@ def open_file_directory(path_or_uri: str) -> None:
     """
     f = Gio.File.new_for_commandline_arg(path_or_uri)
     platform = sys.platform
-    if platform == 'win32':
+    if platform == "win32":
         # We could run `explorer /select,filename`, but that doesn't support
         # reusing an existing Explorer window when selecting a file in a
         # directory that is already open.
@@ -388,7 +388,7 @@ def open_file_directory(path_or_uri: str) -> None:
         SHOpenFolderAndSelectItems(pidl, 0, None, 0)
         ILFree(pidl)
         CoUninitialize()
-    elif platform == 'darwin':
+    elif platform == "darwin":
         subprocess.Popen(["open", (f.get_parent() or f).get_parse_name()])
     else:
         subprocess.Popen(["xdg-open", (f.get_parent() or f).get_parse_name()])
@@ -418,7 +418,7 @@ def open_shelf(path):
 
     if not force_migrate:
         try:
-            db = bsddb.hashopen(path, 'c')
+            db = bsddb.hashopen(path, "c")
             return shelve.BsdDbShelf(db, protocol=PICKLE_PROTOCOL)
         except bsddb.db.DBInvalidArgError:
             logger.warning("%s was created with an old backend, migrating it", path)
@@ -433,7 +433,7 @@ def open_shelf(path):
 
         migrate(path)
 
-    db = bsddb.hashopen(path, 'c')
+    db = bsddb.hashopen(path, "c")
     return shelve.BsdDbShelf(db, protocol=PICKLE_PROTOCOL)
 
 
@@ -475,11 +475,11 @@ class LimitedCache(collections.abc.MutableMapping):
             del self.cache[self.order.popleft()]
 
     def __repr__(self):
-        '''prevent repr(self) from changing cache order'''
+        """prevent repr(self) from changing cache order"""
         return repr(self.cache)
 
     def __str__(self):
-        '''prevent str(self) from changing cache order'''
+        """prevent str(self) from changing cache order"""
         return str(self.cache)
 
     def keys(self):
@@ -589,7 +589,7 @@ def walk_directories(root: Gio.File) -> Iterable[Gio.File]:
 
     try:
         for fileinfo in root.enumerate_children(
-            'standard::name,standard::type', Gio.FileQueryInfoFlags.NONE, None
+            "standard::name,standard::type", Gio.FileQueryInfoFlags.NONE, None
         ):
             if fileinfo.get_file_type() == Gio.FileType.DIRECTORY:
                 directory = root.get_child(fileinfo.get_name())
@@ -638,10 +638,10 @@ class TimeSpan:
         span = self.days * 24 + self.hours
         span = span * 60 + self.minutes
         span = span * 60 + self.seconds
-        return '%s(%s)' % (self.__class__.__name__, span)
+        return "%s(%s)" % (self.__class__.__name__, span)
 
     def __str__(self):
-        return '%dd, %dh, %dm, %ds' % (
+        return "%dd, %dh, %dm, %ds" % (
             self.days,
             self.hours,
             self.minutes,
@@ -664,7 +664,7 @@ class MetadataList:
         * multiply
     """
 
-    __slots__ = ['__list', 'metadata']
+    __slots__ = ["__list", "metadata"]
 
     def __init__(self, iterable=[], metadata=[]):
         self.__list = list(iterable)
@@ -730,7 +730,7 @@ class MetadataList:
         else:
             e = i
         self[i:e] = [item]
-        self.metadata[i:e] = [metadata]
+        self.metadata[i] = metadata
 
     def pop(self, i=-1):
         item = self[i]
@@ -780,13 +780,13 @@ class ProgressThread(GObject.Object, threading.Thread):
     """
 
     __gsignals__ = {
-        'progress-update': (
+        "progress-update": (
             GObject.SignalFlags.RUN_FIRST,
             None,
             (GObject.TYPE_PYOBJECT,),
         ),
         # TODO: Check if 'stopped' is required
-        'done': (GObject.SignalFlags.RUN_FIRST, None, ()),
+        "done": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     def __init__(self):
@@ -797,7 +797,7 @@ class ProgressThread(GObject.Object, threading.Thread):
         """
         Stops the thread
         """
-        self.emit('done')
+        self.emit("done")
 
     def run(self):
         """
@@ -849,7 +849,7 @@ class SimpleProgressThread(ProgressThread):
 
         try:
             for progress in target(*args, **kwargs):
-                self.emit('progress-update', progress)
+                self.emit("progress-update", progress)
                 if self.__stop:
                     break
         except GeneratorExit:
@@ -857,7 +857,7 @@ class SimpleProgressThread(ProgressThread):
         except Exception:
             logger.exception("Unhandled exception")
         finally:
-            self.emit('done')
+            self.emit("done")
 
 
 class PosetItem(Generic[_T]):
@@ -909,7 +909,7 @@ def order_poset(items: Iterable[PosetItem[_T]]) -> List[PosetItem[_T]]:
 
 
 class LazyDict:
-    __slots__ = ['_dict', '_funcs', 'args', '_locks']
+    __slots__ = ["_dict", "_funcs", "args", "_locks"]
 
     def __init__(self, *args):
         self.args = args
@@ -942,7 +942,7 @@ class LazyDict:
 
 
 class _GioFileStream:
-    __slots__ = ['stream']
+    __slots__ = ["stream"]
 
     def __enter__(self):
         return self
@@ -971,7 +971,7 @@ class GioFileInputStream(_GioFileStream):
     TODO: More complete wrapper
     """
 
-    __slots__ = ['stream', 'gfile']
+    __slots__ = ["stream", "gfile"]
 
     def __init__(self, gfile):
         self.gfile = gfile
@@ -984,16 +984,16 @@ class GioFileInputStream(_GioFileStream):
         r = self.stream.read_line()[0]
         if not r:
             raise StopIteration()
-        return r.decode('utf-8')
+        return r.decode("utf-8")
 
     def read(self, size=None):
         if size:
-            return self.stream.read_bytes(size).get_data().decode('utf-8')
+            return self.stream.read_bytes(size).get_data().decode("utf-8")
         else:
-            return self.gfile.load_contents()[1].decode('utf-8')
+            return self.gfile.load_contents()[1].decode("utf-8")
 
     def readline(self):
-        return self.stream.read_line()[0].decode('utf-8')
+        return self.stream.read_line()[0].decode("utf-8")
 
 
 class GioFileOutputStream(_GioFileStream):
@@ -1001,20 +1001,20 @@ class GioFileOutputStream(_GioFileStream):
     Wrapper around Gio.File for writing like a python file object
     """
 
-    __slots__ = ['stream']
+    __slots__ = ["stream"]
 
-    def __init__(self, gfile, mode='w'):
-        if mode != 'w':
+    def __init__(self, gfile, mode="w"):
+        if mode != "w":
             raise IOError("Not implemented")
 
-        self.stream = gfile.replace('', False, Gio.FileCreateFlags.REPLACE_DESTINATION)
+        self.stream = gfile.replace("", False, Gio.FileCreateFlags.REPLACE_DESTINATION)
 
     def flush(self):
         self.stream.flush()
 
     def write(self, s):
         if isinstance(s, str):
-            s = s.encode('utf-8', 'surrogateescape')
+            s = s.encode("utf-8", "surrogateescape")
         return self.stream.write(s)
 
 
@@ -1046,12 +1046,12 @@ def subscribe_for_settings(section, options, self):
             setattr(self, attrname, settings.get_option(data, getattr(self, attrname)))
 
     for k in options:
-        if not k.startswith('%s/' % section):
+        if not k.startswith("%s/" % section):
             raise ValueError("Option is not part of section %s" % section)
         _on_option_set(None, None, k)
 
     return event.add_callback(
-        _on_option_set, '%s_option_set' % section.replace('/', '_')
+        _on_option_set, "%s_option_set" % section.replace("/", "_")
     )
 
 
