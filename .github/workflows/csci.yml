@@ -53,8 +53,6 @@ jobs:
           pip install PyGObject bsddb3
       - name: Make Files
         run: |
-          export PYTEST=pytest
-          ${PYTEST} -V
           python3 -m pip list
           make test
       - name: Run Tests
