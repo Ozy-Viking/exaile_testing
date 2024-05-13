@@ -30,9 +30,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install PyGObject pytest 
-          export PYTEST=pytest
       - name: Make Files
         run: |
+          export PYTEST=pytest
           ${PYTEST} -V
           make test
       - name: Run Tests
