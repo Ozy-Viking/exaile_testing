@@ -21,7 +21,7 @@ jobs:
       #   run: useradd -MN exaile
       - name: Install OS dependencies
         run: |
-          RUN set -x \
+          set -x \
           && apt-get update \
           && apt-get install --assume-yes --no-install-recommends \
             gettext \
