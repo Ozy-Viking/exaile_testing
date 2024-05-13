@@ -58,4 +58,4 @@ jobs:
           export EXAILE_DIR=$(pwd)
           export PATH="${PATH}:$(pwd)"
           export PYTHONPATH=$(pwd)
-          pytest -v tests/CSCI926
+          pytest -v --no-summary tests/CSCI926
