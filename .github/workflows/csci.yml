@@ -20,16 +20,10 @@ jobs:
       - name: Add User
         run: sudo useradd -MN exaile
       - name: Install OS dependencies
-        run: |
-          set -x \
-          && sudo apt-get update \
-          && sudo apt-get install --assume-yes --no-install-recommends \
-            gettext \
-            gir1.2-gst-plugins-base-1.0 \
-            gir1.2-gstreamer-1.0 \
-            gstreamer1.0-plugins-base \
-            libgstreamer1.0-0 \
-          && find /var/lib/apt/lists -mindepth 1 -delete
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: gettext gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 gstreamer1.0-plugins-base libgstreamer1.0-0
+          version: 1.0
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
