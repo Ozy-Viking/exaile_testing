@@ -57,4 +57,5 @@ jobs:
           pip list
           export EXAILE_DIR=$(pwd)
           export PATH="${PATH}:$(pwd)"
+          export PYTHONPATH=$(pwd)
           pytest tests/CSCI926
