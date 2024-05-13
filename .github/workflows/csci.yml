@@ -24,8 +24,8 @@ jobs:
       - name: Install OS dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 libcairo2-dev libgirepository1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad python3-mutagen python3-gi python3-gi-cairo python3-dbus make
-          version: 2.1
+          packages: gir1.2-gtk-3.0 gir1.2-gstreamer-1.0 gir1.2-gst-plugins-base-1.0 libcairo2-dev libgirepository1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-ugly gstreamer1.0-plugins-bad python3-bsddb3 python3-mutagen python3-gi python3-gi-cairo python3-dbus make
+          version: 2.2
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -34,6 +34,7 @@ jobs:
         run: |
           export PYTEST=pytest
           ${PYTEST} -V
+          pip list | grep bsddb3
           make test
       - name: Run Tests
         run: export EXAILE_DIR=$(pwd) && export PATH="${PATH}:$(pwd)"; python -m pytest tests/CSCI926
