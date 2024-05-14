@@ -58,5 +58,5 @@ jobs:
           export EXAILE_DIR=$(pwd)
           export PATH="${PATH}:$(pwd)"
           export PYTHONPATH=$(pwd)
-          EXAILE_DIR=/home/runner/work/exaile_testing/exaile_testing LC_ALL=C LANGUAGE=C PYTHONPATH=/home/runner/work/exaile_testing/exaile_testing:/home/runner/work/exaile_testing/exaile_testing py.test-3
+          EXAILE_DIR=/home/runner/work/exaile_testing/exaile_testing LC_ALL=C LANGUAGE=C PYTHONPATH=/home/runner/work/exaile_testing/exaile_testing:/home/runner/work/exaile_testing/exaile_testing py.test-3 -v
         # pytest -v --no-summary tests/CSCI926
