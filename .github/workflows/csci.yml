@@ -1,0 +1,62 @@
+name: Testing for Course
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - run: python3 -V
+      - name: Add User
+        run: sudo useradd -MN exaile
+      - name: Install OS dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: |
+            gettext
+            libdb-dev
+            gir1.2-gst-plugins-base-1.0
+            gir1.2-gstreamer-1.0
+            gir1.2-gtk-3.0
+            gstreamer1.0-plugins-bad
+            gstreamer1.0-plugins-base
+            gstreamer1.0-plugins-good
+            gstreamer1.0-plugins-ugly
+            libcairo2-dev
+            libgirepository1.0-dev
+            libgstreamer1.0-0
+            make
+            python3-bsddb3
+            python3-dbus
+            python3-gi
+            python3-gi-cairo
+            python3-mutagen
+            python3-pytest
+            python3-sphinx
+            python3-sphinx-rtd-theme
+          version: 3.2
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyGObject bsddb3 pytest mutagen
+      - name: Run Tests
+        run: |
+          python -V
+          pip list
+          export EXAILE_DIR=$(pwd)
+          export PATH="${PATH}:$(pwd)"
+          export PYTHONPATH=$(pwd)
+          EXAILE_DIR=/home/runner/work/exaile_testing/exaile_testing LC_ALL=C LANGUAGE=C PYTHONPATH=/home/runner/work/exaile_testing/exaile_testing:/home/runner/work/exaile_testing/exaile_testing py.test-3 -v
+        # pytest -v --no-summary tests/CSCI926

@@ -69,3 +69,6 @@ __pycache__/
 .vscode/
 
 .venv
+.coverage
+local_testing.*
+allure-results
