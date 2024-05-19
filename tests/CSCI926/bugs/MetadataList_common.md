@@ -1,26 +1,29 @@
-# Insert method in class MetadataList results in an extra None Value in metadata list
+## Insert method in class MetadataList results in an extra None Value in its metadata list
 
-Insert method of MetadataList Class inserts an extra None value in metadatalists, when e == i. Results in inequal length of metadata and list. When the insert occurs at the end of the iterable, no extra `None` is inserted. 
+The `insert` method of MetadataList Class inserts an extra `None` value into its metadatalists, when `e == i`. This results in unequal length of metadata and list. Note, when the insert occurs at the end of the iterable, no extra `None` is inserted. 
 
 Bug found while writing 1,000 test cases for a Masters course I'm undertaking, let me know if you want all the tests. :) 
 
 ### Steps to Reproduce (for bugs)
+
 1. Use the insert method of class MetadataList with a non-zero length MetadataList and insert the item not with the length of the iterable.
 
 
 ### Expected Behavior
-- Only add the metadata that is being inserted and both lists (Metadata and __list being the same length).
+
+- Only add the metadata for the item being inserted and both lists (`metadata` and `__list`) maintain equal length.
 
 
 ### Current Behavior
 
 - File location is in the root of the project, name doesn't matter for testing purposes.
 
-#### Initialision
+#### Initialization
 
-This section is setting up testing.
+This section is setting up testing that shows the bug.
 
 ```python
+# test_commom.py
 from xl.common import MetadataList
 
 def mock_metadata(title, **kwargs):
@@ -28,7 +31,7 @@ def mock_metadata(title, **kwargs):
 
 class MockSong:
     def __init__(self, title, **kwargs) -> None:
-        self.__dict__ = mock_metadata(title,  **kwargs)
+        self.__dict__ = mock_metadata(title, **kwargs)
 
     @property
     def metadata(self):
@@ -47,9 +50,9 @@ class MockSong:
         return f'MockSong("{self.title}")'
 
 def mock_songs_with_metadata(num_songs=10):
-	song_list = [MockSong(f"Song {x}") for x in range(num_songs)]
-	meta_list = [x.metadata for x in song_list]
-	return (song_list, meta_list)
+    song_list = [MockSong(f"Song {x}") for x in range(num_songs)]
+    meta_list = [x.metadata for x in song_list]
+    return (song_list, meta_list)
 
 def mock_song():
     return MockSong("Insert Song")
@@ -64,9 +67,9 @@ def reset_mdl():
     mdl = MetadataList(song_list, meta_list)  
 ```
 
-#### Insert at Beggining
+#### Insert at Beginning
 
-When the index is 0, the None Value is at index 1. The inserted object and metadata is in the correct location but the metadata after index 0 is 1 position out.
+When the index is 0 (`mdl.insert(0, insert_song, insert_song.metadata)`), the None Value is at index 1. The inserted object and metadata is in the correct location but the metadata after index 0 is 1 position out.
 
 ```python
 metadata = [
@@ -84,7 +87,8 @@ For reference:
 
 ```python
 class MetadataList:
-	def __setitem__(self, i, value):
+
+    def __setitem__(self, i, value):
         self.__list.__setitem__(i, value)
         if isinstance(value, MetadataList):
             metadata = list(value.metadata)
@@ -92,7 +96,7 @@ class MetadataList:
             metadata = [None] * len(value)
         self.metadata.__setitem__(i, metadata)
 
-	def insert(self, i, item, metadata=None):
+    def insert(self, i, item, metadata=None):
         if i >= len(self):
             i = len(self)
             e = len(self) + 1
@@ -106,10 +110,10 @@ class MetadataList:
 
 The bug is in `self.metadata[i:e] = [metadata]`. 
 
-1. When the index `i` is less than the length, i.e. being inserted, the else clause is used; both e and i are equal `e = i`.
-1. The line `self[i:e] = [item]` goes directly into the __setitem__ method and the value is of type list.
+1. When the index `i` is less than the length of the list, i.e. being inserted, the else clause is used; both `e` and `i` are set equal `e = i`.
+1. The line `self[i:e] = [item]` goes directly into the `__setitem__` method and the value is of type list.
 1. This means that `metadata = [None] * len(value)` line will get hit generating a `[None]` value.
-1. As the index is a slice object of two equal integers, it will insert list into this list similar to adding two lists but will insert at the given location; the `None` value is inserted; `self.metadata.__setitem__(i, metadata)` sets the `None` value in the Metadata.
+1. As the index is a slice object of two equal integers, it will insert the unpacked version of `[None]` into this list similar to adding two lists but will insert at the given location; the `None` value is inserted; `self.metadata.__setitem__(i, metadata)` sets the `None` value in the Metadata.
 
 	```python
 	self.metadata = [
@@ -122,8 +126,7 @@ The bug is in `self.metadata[i:e] = [metadata]`.
 	]
 	```
 
-1. Return to the `insert` method.
-1. Again a slice is used to insert the actual metadata value, resulting in:
+1. Return to the `insert` method, again a slice is used to insert the actual metadata value, resulting in:
 
 	```python
 	metadata = [
@@ -151,7 +154,7 @@ print(mdl.metadata)
 
 #### Insert in the Middle
 
-When the index is 2, the None Value is at index 3. The inserted object is in the correct location but the metadata is 1 position out after 2. Caused by the same bug as above.
+When the index is 2 (`mdl.insert(2, insert_song, insert_song.metadata)`), the None Value is now at index 3. The inserted object is in the correct location but the metadata is 1 position out after index 2. Caused by the same bug as above.
 
 ```python
 metadata = [
@@ -202,8 +205,9 @@ print(mdl.metadata)
 
 ### Possible Solution
 
-As the metadata list has been increased in size by the `MetadataList.__setitem__` with the value of None. It is safe to just use the index value `i`. 
+As the metadata list has increased in size by the `MetadataList.__setitem__` method being called with `self[i:e] = [item]`, a value of None is in the correct position. It is safe to just use the index value `i` to change the `None` to the desired value. 
 
+#### Original
 ```python
 class MetadataList:
     def insert(self, i, item, metadata=None):
@@ -216,7 +220,7 @@ class MetadataList:
         self.metadata[i:e] = [metadata]
 ```
 
-Proposed change:
+#### Proposed change
 
 ```python
 class MetadataList:
@@ -226,16 +230,12 @@ class MetadataList:
             e = len(self) + 1
         else:
             e = i
-        self[i:e] = [item] 
+        self[i:e] = [item]
         self.metadata[i] = metadata
 ```
 
-1. After `self[i:e] = [item]` the metadata has a `None` value.
-1. Change the 'None" value to the correct value with `self.metadata[i] = metadata`
-
 ### Environment
 <!--- Include as many relevant details about the environment you experienced the bug in -->
-* Operating System and version: Ubuntu 22.04 - Python 3.10
+* Operating System and version: Ubuntu 22.04 WSL - Python 3.10
 <!-- paste below all the version/locale information from the Exaile About dialog -->
 * Exaile Version: 4.1.3 (76accdc14cf35ddb4e71c9b8722cdabd6d7c8e9e)
-
